@@ -149,30 +149,38 @@ pricingCsv:
 # SAML integration for user management and RBAC, enterprise key required
 # Ref: https://github.com/kubecost/docs/blob/master/user-management.md
 saml:
-  enabled: false
-  secretName: "kubecost-authzero"
+  enabled: true
+  secretName: "kubecost-okta"
   #metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
-  idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
-  appRootURL: "http://localhost:9090" # sample URL
-  authTimeout: 1440 # number of minutes the JWT will be valid
+  idpMetadataURL: "http://35.232.167.149:8080/realms/kubecost-rbac/protocol/saml/descriptor"
+  appRootURL: "http://34.134.117.219:9090" # sample URL
+  authTimeout: 10 # number of minutes the JWT will be valid
   redirectURL: "https://dev-elu2z98r.auth0.com/v2/logout" # callback URL redirected to after logout
   # audienceURI: "http://localhost:9090" # by convention, the same as the appRootURL, but any string uniquely identifying kubecost to your samp IDP. Optional if you follow the convention
   # nameIDFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" If your SAML provider requires a specific nameid format
   # isGLUUProvider: false # An additional URL parameter must be appended for GLUU providers
   rbac:
-    enabled: false
+    enabled: true
     groups:
       - name: admin
-        enabled: false # if admin is disabled, all SAML users will be able to make configuration changes to the kubecost frontend
-        assertionName: "http://schemas.auth0.com/userType" # a SAML Assertion, one of whose elements has a value that matches on of the values in assertionValues
+        enabled: true # if admin is disabled, all SAML users will be able to make configuration changes to the kubecost frontend
+        assertionName: "Role" # a SAML Assertion, one of whose elements has a value that matches on of the values in assertionValues
         assertionValues:
           - "admin"
           - "superusers"
       - name: readonly
         enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
-        assertionName:  "http://schemas.auth0.com/userType"
+        assertionName:  "Role"
         assertionvalues:
           - "readonly"
+<<<<<<< Updated upstream
+=======
+      - name: editor
+        enabled: false # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
+        assertionName: "Role"
+        assertionValues:
+          - "editor"
+>>>>>>> Stashed changes
 
 # Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
@@ -281,15 +289,15 @@ kubecostModel:
 
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/master/ingress-examples.md
 ingress:
-  enabled: false
-  # className: nginx
+  enabled: true
+  className: nginx
   annotations:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   paths: ["/"] # There's no need to route specifically to the pods-- we have an nginx deployed that handles routing
   pathType: ImplementationSpecific
   hosts:
-    - cost-analyzer.local
+    - ""
   tls: []
   #  - secretName: cost-analyzer-tls
   #    hosts:
