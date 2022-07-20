@@ -1,33 +1,12 @@
 {
-  "meta": {
-    "type": "db",
-    "canSave": false,
-    "canEdit": false,
-    "canAdmin": false,
-    "canStar": true,
-    "slug": "kubecost-cluster-metrics",
-    "url": "/d/JOUdHGZZz/kubecost-cluster-metrics",
-    "expires": "0001-01-01T00:00:00Z",
-    "created": "2022-07-18T17:18:13Z",
-    "updated": "2022-07-18T17:18:13Z",
-    "updatedBy": "admin",
-    "createdBy": "admin",
-    "version": 1,
-    "hasAcl": false,
-    "isFolder": false,
-    "folderId": 0,
-    "folderUid": "",
-    "folderTitle": "General",
-    "folderUrl": "",
-    "provisioned": false,
-    "provisionedExternalId": ""
-  },
-  "dashboard": {
     "annotations": {
       "list": [
         {
           "builtIn": 1,
-          "datasource": "-- Grafana --",
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
           "enable": true,
           "hide": true,
           "iconColor": "rgba(0, 211, 255, 1)",
@@ -46,12 +25,16 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 5,
-    "iteration": 1658164678393,
+    "id": 2,
+    "iteration": 1658239898413,
     "links": [],
     "liveNow": false,
     "panels": [
       {
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "gridPos": {
           "h": 2,
           "w": 24,
@@ -64,13 +47,23 @@
           "content": "Note: this dashboard requires Kubecost metrics to be available in your Prometheus deployment. [Learn more](https://github.com/kubecost/cost-model/blob/master/PROMETHEUS.md)",
           "mode": "markdown"
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
+        "targets": [
+          {
+            "datasource": {
+              "type": "datasource",
+              "uid": "grafana"
+            },
+            "refId": "A"
+          }
+        ],
         "transparent": true,
         "type": "text"
       },
       {
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Monthly run rate of CPU + GPU costs based on currently provisioned resources.",
         "fieldConfig": {
@@ -131,9 +124,14 @@
           },
           "textMode": "auto"
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": false,
             "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n)",
             "format": "time_series",
             "instant": true,
@@ -144,12 +142,13 @@
           }
         ],
         "timeFrom": "15m",
-        "title": "CPU Cost",
+        "title": "Monthly CPU Cost",
         "type": "stat"
       },
       {
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Monthly run rate of memory costs based on currently provisioned expenses.",
         "fieldConfig": {
@@ -210,9 +209,14 @@
           },
           "textMode": "auto"
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": false,
             "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n)",
             "format": "time_series",
             "instant": true,
@@ -223,12 +227,13 @@
           }
         ],
         "timeFrom": "15m",
-        "title": "Memory Cost",
+        "title": "Monthly Memory Cost",
         "type": "stat"
       },
       {
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Monthly run rate of attached storage and PV costs based on currently provisioned resources.",
         "fieldConfig": {
@@ -240,8 +245,18 @@
             "mappings": [
               {
                 "options": {
+                  "N/A": {
+                    "index": 1,
+                    "text": "1"
+                  }
+                },
+                "type": "value"
+              },
+              {
+                "options": {
                   "match": "null",
                   "result": {
+                    "index": 0,
                     "text": "N/A"
                   }
                 },
@@ -273,6 +288,7 @@
         },
         "hideTimeOverride": true,
         "id": 4,
+        "interval": "15",
         "links": [],
         "maxDataPoints": 100,
         "options": {
@@ -289,10 +305,15 @@
           },
           "textMode": "auto"
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "targets": [
           {
-            "expr": "sum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\nsum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": false,
+            "expr": "sum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\n(sum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost OR on() vector(0))",
             "format": "time_series",
             "instant": true,
             "interval": "",
@@ -302,12 +323,13 @@
           }
         ],
         "timeFrom": "15m",
-        "title": "Storage Cost",
+        "title": "Monthly Storage Cost",
         "type": "stat"
       },
       {
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Sum of compute, memory, storage and network costs.",
         "fieldConfig": {
@@ -368,10 +390,15 @@
           },
           "textMode": "auto"
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "targets": [
           {
-            "expr": "# Compute\nsum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n\n# Memory\nsum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n# Storage \n\nsum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\nsum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": false,
+            "expr": "# Compute\nsum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n\n# Memory\nsum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n# Storage \n\nsum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\n(sum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost OR on() vector(0))",
             "format": "time_series",
             "instant": true,
             "interval": "",
@@ -381,12 +408,13 @@
           }
         ],
         "timeFrom": "15m",
-        "title": "Total Cost",
+        "title": "Total Monthly Cost",
         "type": "stat"
       },
       {
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Current CPU use from applications divided by allocatable CPUs",
         "fieldConfig": {
@@ -451,13 +479,19 @@
           "showThresholdLabels": false,
           "showThresholdMarkers": true
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": true,
             "expr": "(\n sum(\n   count(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n   * on (instance) \n   sum(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n ) \n / \n (sum (kube_node_status_allocatable{resource=\"cpu\", unit=\"core\"}))\n) * 100",
             "format": "time_series",
             "interval": "",
             "intervalFactor": 1,
+            "legendFormat": "",
             "refId": "A",
             "step": 10
           }
@@ -468,7 +502,8 @@
       },
       {
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Current CPU reservation requests from applications vs allocatable CPU",
         "fieldConfig": {
@@ -532,9 +567,13 @@
           "showThresholdLabels": false,
           "showThresholdMarkers": true
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
             "expr": "SUM(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) / SUM(kube_node_status_allocatable{resource=\"cpu\", unit=\"core\"}) * 100",
             "format": "time_series",
             "interval": "",
@@ -548,7 +587,8 @@
       },
       {
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Current RAM use vs RAM available",
         "fieldConfig": {
@@ -598,6 +638,7 @@
         },
         "hideTimeOverride": true,
         "id": 17,
+        "interval": "15",
         "links": [],
         "maxDataPoints": 100,
         "options": {
@@ -612,20 +653,35 @@
           "showThresholdLabels": false,
           "showThresholdMarkers": true
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "targets": [
           {
-            "expr": "SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"}) * 100",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": true,
+            "expr": "SUM(container_memory_working_set_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"}) * 100",
             "format": "time_series",
+            "instant": false,
             "interval": "",
             "intervalFactor": 1,
+            "legendFormat": "",
             "refId": "A",
             "step": 10
           },
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": true,
             "expr": "",
             "format": "time_series",
+            "instant": false,
+            "interval": "",
             "intervalFactor": 1,
+            "legendFormat": "",
             "refId": "B"
           }
         ],
@@ -635,7 +691,8 @@
       },
       {
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Current RAM requests vs RAM available",
         "fieldConfig": {
@@ -698,9 +755,13 @@
           "showThresholdLabels": false,
           "showThresholdMarkers": true
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
             "expr": "(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"})\n /\n sum(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"})\n) * 100",
             "format": "time_series",
             "interval": "",
@@ -714,7 +775,8 @@
       },
       {
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "This gauge shows the current standard storage use, including cluster storage, vs storage available",
         "fieldConfig": {
@@ -779,13 +841,19 @@
           "showThresholdLabels": false,
           "showThresholdMarkers": true
         },
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": true,
             "expr": "sum (\n sum(kube_persistentvolumeclaim_info) by (persistentvolumeclaim, namespace)\n + on (persistentvolumeclaim, namespace)\n sum(pod_pvc_allocation) by (persistentvolumeclaim, namespace) or up * 0\n + sum(container_fs_usage_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"})\n) /\nsum (\n sum(kube_persistentvolumeclaim_info) by (persistentvolumeclaim, namespace)\n + on (persistentvolumeclaim, namespace)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n + sum(container_fs_limit_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"})\n) * 100",
             "format": "time_series",
             "interval": "",
             "intervalFactor": 1,
+            "legendFormat": "",
             "refId": "A",
             "step": 10
           }
@@ -800,7 +868,8 @@
         "dashLength": 10,
         "dashes": false,
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Monthly run rate of CPU + GPU costs",
         "fill": 1,
@@ -831,7 +900,7 @@
           "alertThreshold": true
         },
         "percentage": false,
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -841,6 +910,10 @@
         "steppedLine": false,
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
             "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 +\n  avg(node_gpu_hourly_cost) by (node) * 730\n)",
             "format": "time_series",
             "intervalFactor": 1,
@@ -885,7 +958,8 @@
         "dashLength": 10,
         "dashes": false,
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Monthly run rate of memory costs",
         "fill": 1,
@@ -916,7 +990,7 @@
           "alertThreshold": true
         },
         "percentage": false,
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -926,6 +1000,10 @@
         "steppedLine": false,
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
             "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730\n)",
             "format": "time_series",
             "intervalFactor": 1,
@@ -970,7 +1048,8 @@
         "dashLength": 10,
         "dashes": false,
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Monthly run rate of attached disk + PV storage costs",
         "fill": 1,
@@ -1001,7 +1080,7 @@
           "alertThreshold": true
         },
         "percentage": false,
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -1011,8 +1090,14 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "sum(\n  avg(avg_over_time(pv_hourly_cost[$timeRange] offset 1m)) by (persistentvolume) * 730 \n  * avg(avg_over_time(kube_persistentvolume_capacity_bytes[$timeRange] offset 1m)) by (persistentvolume) / 1024 / 1024 / 1024\n) +\nsum(avg(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": true,
+            "expr": "sum(\n  avg(avg_over_time(pv_hourly_cost[$timeRange] offset 1m)) by (persistentvolume) * 730 \n  * avg(avg_over_time(kube_persistentvolume_capacity_bytes[$timeRange] offset 1m)) by (persistentvolume) / 1024 / 1024 / 1024\n) +\n(sum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost OR on() vector(0))",
             "format": "time_series",
+            "interval": "",
             "intervalFactor": 1,
             "legendFormat": "storage cost",
             "refId": "A"
@@ -1055,7 +1140,8 @@
         "dashLength": 10,
         "dashes": false,
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Sum of compute, memory, and storage costs",
         "fill": 1,
@@ -1086,7 +1172,7 @@
           "alertThreshold": true
         },
         "percentage": false,
-        "pluginVersion": "8.3.2",
+        "pluginVersion": "8.4.6",
         "pointradius": 5,
         "points": false,
         "renderer": "flot",
@@ -1096,8 +1182,15 @@
         "steppedLine": false,
         "targets": [
           {
-            "expr": "# Compute\nsum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n\n# Memory\nsum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n# Storage \n\nsum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\nsum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": true,
+            "expr": "# Compute\nsum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n\n# Memory\nsum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n# Storage \n\nsum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\n(sum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost OR on() vector(0))",
             "format": "time_series",
+            "instant": false,
+            "interval": "",
             "intervalFactor": 1,
             "legendFormat": "total cost",
             "refId": "A"
@@ -1137,7 +1230,8 @@
       {
         "columns": [],
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Cost of by resource class of currently provisioned nodes",
         "fontSize": "100%",
@@ -1285,87 +1379,124 @@
         ],
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": false,
             "expr": "avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost or up * 0) by (node) * 730 * (1-$useDiscount/100)",
             "format": "table",
             "instant": true,
+            "interval": "",
             "intervalFactor": 1,
             "legendFormat": "",
             "refId": "A"
           },
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": false,
             "expr": "avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)",
             "format": "table",
             "instant": true,
+            "interval": "",
             "intervalFactor": 1,
             "legendFormat": "",
             "refId": "B"
           },
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": false,
             "expr": "avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)",
             "format": "table",
             "instant": true,
+            "interval": "",
             "intervalFactor": 1,
+            "legendFormat": "",
             "refId": "D"
           },
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": false,
             "expr": "# CPU  \navg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost or up * 0) by (node) * 730 * (1-$useDiscount/100) +\n# GPU\navg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n# Memory\navg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n",
             "format": "table",
             "instant": true,
+            "interval": "",
             "intervalFactor": 1,
+            "legendFormat": "",
             "refId": "C"
           }
         ],
-        "title": "Cost by node",
+        "title": "Monthly Cost by Node",
         "transform": "table",
         "type": "table-old"
       },
       {
-        "aliasColors": {},
-        "bars": false,
-        "dashLength": 10,
-        "dashes": false,
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
         "description": "Monthly run rate of attached disk + PV storage costs based on currently provisioned resources.",
-        "fill": 1,
-        "fillGradient": 0,
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "continuous-GrYlRd"
+            },
+            "mappings": [],
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "red",
+                  "value": 80
+                }
+              ]
+            },
+            "unit": "currencyUSD"
+          },
+          "overrides": []
+        },
         "gridPos": {
           "h": 9,
           "w": 12,
           "x": 12,
           "y": 16
         },
-        "hiddenSeries": false,
         "id": 25,
         "interval": "1m",
-        "legend": {
-          "avg": false,
-          "current": false,
-          "max": false,
-          "min": false,
-          "show": true,
-          "total": false,
-          "values": false
-        },
-        "lines": true,
-        "linewidth": 1,
         "links": [],
-        "nullPointMode": "connected",
         "options": {
-          "alertThreshold": true
+          "displayMode": "lcd",
+          "orientation": "horizontal",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "showUnfilled": true,
+          "text": {}
         },
-        "percentage": false,
-        "pluginVersion": "8.3.2",
-        "pointradius": 5,
-        "points": false,
-        "renderer": "flot",
-        "seriesOverrides": [],
-        "spaceLength": 10,
-        "stack": true,
-        "steppedLine": false,
+        "pluginVersion": "8.4.6",
         "targets": [
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
             "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 +\n  avg(node_gpu_hourly_cost) by (node) * 730\n)",
             "format": "time_series",
             "intervalFactor": 1,
@@ -1373,6 +1504,10 @@
             "refId": "B"
           },
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
             "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730\n)",
             "format": "time_series",
             "intervalFactor": 1,
@@ -1380,6 +1515,10 @@
             "refId": "A"
           },
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
             "expr": "sum(\n  avg(avg_over_time(pv_hourly_cost[$timeRange] offset 1m)) by (persistentvolume) * 730 \n  * avg(avg_over_time(kube_persistentvolume_capacity_bytes[$timeRange] offset 1m)) by (persistentvolume) / 1024 / 1024 / 1024\n) +\nsum(avg(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost",
             "format": "time_series",
             "intervalFactor": 1,
@@ -1387,6 +1526,10 @@
             "refId": "C"
           },
           {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
             "expr": "SUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $percentEgress * $egressCost ",
             "format": "time_series",
             "intervalFactor": 1,
@@ -1394,40 +1537,144 @@
             "refId": "D"
           }
         ],
-        "thresholds": [],
-        "timeRegions": [],
-        "title": "Cost by Resource",
-        "tooltip": {
-          "shared": true,
-          "sort": 0,
-          "value_type": "individual"
+        "title": "Monthly Cost by Resource",
+        "type": "bargauge"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
         },
-        "type": "graph",
-        "xaxis": {
-          "mode": "time",
-          "show": true,
-          "values": []
-        },
-        "yaxes": [
-          {
-            "format": "currencyUSD",
-            "logBase": 1,
-            "min": "0",
-            "show": true
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              }
+            },
+            "mappings": []
           },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 25
+        },
+        "id": 29,
+        "options": {
+          "displayLabels": [
+            "percent"
+          ],
+          "legend": {
+            "displayMode": "list",
+            "placement": "right",
+            "values": []
+          },
+          "pieType": "pie",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
           {
-            "format": "short",
-            "logBase": 1,
-            "show": true
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": true,
+            "expr": "sum(sum(container_memory_allocation_bytes) by (container,namespace, instance) * on(instance) group_left() (\n\t\t\t\tnode_ram_hourly_cost{} / 1024 / 1024 / 1024\n\t\t\t\t+ on(node,instance_type) group_left()\n\t\t\t\t\tlabel_replace\n\t\t\t\t\t(\n\t\t\t\t\t\tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t\t\t\t) * 0\n\t\t\t)\n  + \n  sum(container_cpu_allocation) by (container,namespace, instance) * on(instance) group_left() (\n\t  \t\t\tnode_cpu_hourly_cost{} + on(node,instance_type) group_left()\n\t\t  \t\t\tlabel_replace\n\t\t  \t\t\t(\n\t\t  \t\t\t\tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t  \t\t\t) * 0\n\t\t  \t)) by (namespace, container)",
+            "interval": "",
+            "legendFormat": "{{namespace}} / {{container}}",
+            "refId": "A"
           }
         ],
-        "yaxis": {
-          "align": false
-        }
+        "title": "Hourly Cost by Container",
+        "type": "piechart"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "o6dCetRVz"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "palette-classic"
+            },
+            "custom": {
+              "hideFrom": {
+                "legend": false,
+                "tooltip": false,
+                "viz": false
+              }
+            },
+            "mappings": []
+          },
+          "overrides": []
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 25
+        },
+        "id": 31,
+        "options": {
+          "displayLabels": [
+            "percent"
+          ],
+          "legend": {
+            "displayMode": "list",
+            "placement": "right",
+            "values": []
+          },
+          "pieType": "pie",
+          "reduceOptions": {
+            "calcs": [
+              "lastNotNull"
+            ],
+            "fields": "",
+            "values": false
+          },
+          "tooltip": {
+            "mode": "single",
+            "sort": "none"
+          }
+        },
+        "targets": [
+          {
+            "datasource": {
+              "type": "prometheus",
+              "uid": "o6dCetRVz"
+            },
+            "exemplar": true,
+            "expr": "sum(sum(container_memory_allocation_bytes) by (namespace,instance) * on(instance) group_left() (\n\t\t\t\tnode_ram_hourly_cost{} / 1024 / 1024 / 1024\n\t\t\t\t+ on(node,instance_type) group_left()\n\t\t\t\t\tlabel_replace\n\t\t\t\t\t(\n\t\t\t\t\t\tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t\t\t\t) * 0\n\t\t\t)\n  + \n  sum(container_cpu_allocation) by (namespace,instance) * on(instance) group_left() (\n\t  \t\t\tnode_cpu_hourly_cost{} + on(node,instance_type) group_left()\n\t\t  \t\t\tlabel_replace\n\t\t  \t\t\t(\n\t\t  \t\t\t\tkube_node_labels{}, \"instance_type\", \"$1\", \"label_node_kubernetes_io_instance_type\", \"(.*)\"\n\t\t  \t\t\t) * 0\n\t\t  \t)) by (namespace)",
+            "interval": "",
+            "legendFormat": "{{namespace}}",
+            "refId": "A"
+          }
+        ],
+        "title": "Hourly Cost by Namespace",
+        "type": "piechart"
       }
     ],
     "refresh": false,
-    "schemaVersion": 33,
+    "schemaVersion": 35,
     "style": "dark",
     "tags": [
       "cost",
@@ -1553,10 +1800,147 @@
           "name": "datasource",
           "options": [],
           "query": "prometheus",
+          "queryValue": "",
           "refresh": 1,
           "regex": "",
           "skipUrlSync": false,
           "type": "datasource"
+        },
+        {
+          "current": {
+            "selected": false,
+            "text": "kube-system",
+            "value": "kube-system"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "o6dCetRVz"
+          },
+          "definition": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (namespace))",
+          "hide": 0,
+          "includeAll": false,
+          "label": "ns",
+          "multi": false,
+          "name": "namespace",
+          "options": [],
+          "query": {
+            "query": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (namespace))",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "/namespace=\\\"(.*?)(\\\")/",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        },
+        {
+          "current": {
+            "selected": false,
+            "text": "event-exporter-gke-5479fd58c8-hn5h4",
+            "value": "event-exporter-gke-5479fd58c8-hn5h4"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "o6dCetRVz"
+          },
+          "definition": "query_result(sum(container_memory_working_set_bytes{namespace=\"$namespace\"}) by (pod))",
+          "hide": 0,
+          "includeAll": false,
+          "label": "pod",
+          "multi": false,
+          "name": "pod",
+          "options": [],
+          "query": {
+            "query": "query_result(sum(container_memory_working_set_bytes{namespace=\"$namespace\"}) by (pod))",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "/pod=\\\"(.*?)(\\\")/",
+          "skipUrlSync": false,
+          "sort": 1,
+          "type": "query"
+        },
+        {
+          "current": {
+            "isNone": true,
+            "selected": false,
+            "text": "None",
+            "value": ""
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "o6dCetRVz"
+          },
+          "definition": "cluster",
+          "hide": 0,
+          "includeAll": false,
+          "multi": false,
+          "name": "cluster",
+          "options": [],
+          "query": {
+            "query": "cluster",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "/cluster=\\\"(.*?)(\\\")/",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        },
+        {
+          "current": {
+            "selected": false,
+            "text": "autoscaler",
+            "value": "autoscaler"
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "o6dCetRVz"
+          },
+          "definition": "query_result(sum(container_memory_working_set_bytes{namespace=\"$namespace\"}) by (container))",
+          "hide": 0,
+          "includeAll": false,
+          "label": "conatiner",
+          "multi": false,
+          "name": "container",
+          "options": [],
+          "query": {
+            "query": "query_result(sum(container_memory_working_set_bytes{namespace=\"$namespace\"}) by (container))",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "/container=\\\"(.*?)(\\\")/",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
+        },
+        {
+          "current": {
+            "isNone": true,
+            "selected": false,
+            "text": "None",
+            "value": ""
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "o6dCetRVz"
+          },
+          "definition": "node",
+          "hide": 0,
+          "includeAll": false,
+          "label": "node",
+          "multi": false,
+          "name": "node",
+          "options": [],
+          "query": {
+            "query": "node",
+            "refId": "StandardVariableQuery"
+          },
+          "refresh": 1,
+          "regex": "",
+          "skipUrlSync": false,
+          "sort": 0,
+          "type": "query"
         }
       ]
     },
@@ -1590,9 +1974,8 @@
       ]
     },
     "timezone": "",
-    "title": "Kubecost cluster metrics",
+    "title": "Kubecost cluster metrics -new",
     "uid": "JOUdHGZZz",
-    "version": 1,
+    "version": 2,
     "weekStart": ""
   }
-}

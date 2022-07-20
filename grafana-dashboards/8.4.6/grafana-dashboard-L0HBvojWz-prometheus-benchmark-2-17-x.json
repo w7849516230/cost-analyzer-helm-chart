@@ -1,27 +1,4 @@
 {
-  "meta": {
-    "type": "db",
-    "canSave": false,
-    "canEdit": false,
-    "canAdmin": false,
-    "canStar": true,
-    "slug": "prometheus-benchmark-2-17-x",
-    "url": "/d/L0HBvojWz/prometheus-benchmark-2-17-x",
-    "expires": "0001-01-01T00:00:00Z",
-    "created": "2022-07-18T17:20:33Z",
-    "updated": "2022-07-18T17:20:33Z",
-    "updatedBy": "admin",
-    "createdBy": "admin",
-    "version": 1,
-    "hasAcl": false,
-    "isFolder": false,
-    "folderId": 0,
-    "folderUid": "",
-    "folderTitle": "General",
-    "folderUrl": "",
-    "provisioned": false,
-    "provisionedExternalId": ""
-  },
   "dashboard": {
     "annotations": {
       "list": [

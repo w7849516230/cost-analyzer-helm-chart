@@ -1,28 +1,4 @@
-{
-  "meta": {
-    "type": "db",
-    "canSave": false,
-    "canEdit": false,
-    "canAdmin": false,
-    "canStar": true,
-    "slug": "cluster-cost-and-utilization-metrics",
-    "url": "/d/cluster-costs/cluster-cost-and-utilization-metrics",
-    "expires": "0001-01-01T00:00:00Z",
-    "created": "2022-07-18T17:17:19Z",
-    "updated": "2022-07-18T17:17:19Z",
-    "updatedBy": "admin",
-    "createdBy": "admin",
-    "version": 1,
-    "hasAcl": false,
-    "isFolder": false,
-    "folderId": 0,
-    "folderUid": "",
-    "folderTitle": "General",
-    "folderUrl": "",
-    "provisioned": false,
-    "provisionedExternalId": ""
-  },
-  "dashboard": {
+  {
     "annotations": {
       "list": [
         {
@@ -3218,4 +3194,3 @@
     "version": 1,
     "weekStart": ""
   }
-}
