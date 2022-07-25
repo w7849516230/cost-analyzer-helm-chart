@@ -3189,7 +3189,7 @@
       ]
     },
     "timezone": "browser",
-    "title": "Cluster cost & utilization metrics",
+    "title": "Monthly Projected Cost & utilization metrics",
     "uid": "cluster-costs",
     "version": 1,
     "weekStart": ""
